@@ -30,8 +30,5 @@ recycleView.bind {
     }
     add("Group-3")
     addAl
-    bind(TextView(this@MainActivity).apply {
-        text = "TEST"
-    })
 }
 ```
