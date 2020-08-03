@@ -3,7 +3,7 @@
 ### Dependency:
 ```
 dependencies {
-    implementation 'com.github.yfbx-repo:x-adapter:Tag'
+    implementation 'com.github.yfbx-repo:x-adapter:1.0.0'
 }
 ```
 
