@@ -3,7 +3,6 @@ package com.yfbx.demo
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.yfbx.adapter.bind
 import kotlinx.android.synthetic.main.activity_main.*
@@ -18,9 +17,9 @@ class MainActivity : AppCompatActivity() {
         val data = listOf(User("Edward"), User("David"), User("Jackson"), User("Roger"), User("Sara"))
 
         //单布局
-//        val adapter = recycleView.bind(R.layout.item_menu, data) { helper, item ->
-//            helper.itemView.btn.text = item.name
-//        }
+        val adapter = recycleView.bind(R.layout.item_menu, data) { helper, item ->
+            helper.itemView.btn.text = item.name
+        }
 
         //多布局
         recycleView.bind {
@@ -33,7 +32,7 @@ class MainActivity : AppCompatActivity() {
             bind<User>(R.layout.item_menu, data) { helper, item ->
                 helper.itemView.btn.text = item.name
                 helper.itemView.btn.setOnClickListener {
-                    //TODO: click event
+                    //
                 }
             }
             add("Group-2")
@@ -42,10 +41,6 @@ class MainActivity : AppCompatActivity() {
             }
             add("Group-3")
             addAll(data)
-
-            bind(TextView(this@MainActivity).apply {
-                text = "TEST"
-            })
         }
     }
 }
