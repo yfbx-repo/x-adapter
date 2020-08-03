@@ -1,5 +1,11 @@
 # x-adapter
 
+### Dependency:
+```
+dependencies {
+    implementation 'com.github.yfbx-repo:x-adapter:Tag'
+}
+```
 
 
 ### Example:
