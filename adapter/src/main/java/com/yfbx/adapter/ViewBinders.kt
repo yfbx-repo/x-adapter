@@ -25,28 +25,6 @@ inline fun <reified T> XAdapter.bind(view: View, noinline binder: (helper: ViewH
     bind(type, view, binder)
 }
 
-
-/**
- * 简化使用，只加一个无数据的 View
- */
-fun XAdapter.bind(view: View) {
-    val item = EmptyData()
-    val className = EmptyData::class.java.name
-    val viewType = className.hashCode()
-    addBinder(viewType, className, object : Binder<EmptyData>({ _, _ ->
-        //ignore
-    }) {
-        override fun createViewHelper(parent: ViewGroup): ViewHelper {
-            return object : ViewHelper(view) {
-                override fun onBind(item: Any) {
-                    //ignore
-                }
-            }
-        }
-    })
-    add(item)
-}
-
 inline fun <reified T> XAdapter.bind(viewType: Int, view: View, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
     val className = T::class.java.name
     addBinder(viewType, className, object : Binder<T>(binder) {
@@ -59,5 +37,3 @@ inline fun <reified T> XAdapter.bind(viewType: Int, view: View, noinline binder:
         }
     })
 }
-
-internal class EmptyData()
