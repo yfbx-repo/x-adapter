@@ -17,7 +17,7 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
     //<className,viewType>
     private val types = hashMapOf<String, Int>()
 
-    private val list = mutableListOf<Any>()
+    private val data = mutableListOf<Any>()
 
     fun addBinder(viewType: Int, className: String, binder: Binder<*>) {
         types[className] = viewType
@@ -25,11 +25,11 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return data.size
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = list[position]
+        val item = data[position]
         val className = item::class.java.name
         val type = types[className]
         require(type != null) { "This type #$className of view  was not found!" }
@@ -47,9 +47,14 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
     }
 
     override fun onBindViewHolder(holder: ViewHelper, position: Int, payloads: MutableList<Any>) {
-        holder.onBind(list[holder.adapterPosition])
+        holder.onBind(data[holder.adapterPosition])
     }
 
+    fun setNewData(items: List<Any>) {
+        data.clear()
+        data.addAll(items)
+        notifyDataSetChanged()
+    }
 
     fun add(item: Any, position: Int = itemCount) {
         require(position in 0..itemCount) {
@@ -58,7 +63,7 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
         require(item !is List<*>) {
             "IllegalArgumentException:Method #add(item) is only used to add single item.try: #addAll(items)"
         }
-        list.add(position, item)
+        data.add(position, item)
         notifyInserted(position)
     }
 
@@ -66,7 +71,7 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
         require(position in 0..itemCount) {
             "IndexOutOfBoundsException: size = $itemCount, position = $position"
         }
-        list.addAll(position, items)
+        data.addAll(position, items)
         notifyRangeInserted(items.size, position)
     }
 
@@ -74,33 +79,43 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
         require(position in 0 until itemCount) {
             "IndexOutOfBoundsException: size = $itemCount, position = $position"
         }
-        list.removeAt(position)
+        data.removeAt(position)
         notifyRemoved(position)
+    }
+
+    inline fun <reified T> removeAll() {
+        getData().removeAll { it is T }
+        notifyDataSetChanged()
+    }
+
+    fun clear() {
+        data.clear()
+        notifyDataSetChanged()
     }
 
     fun update(position: Int, item: Any) {
         require(position in 0 until itemCount) {
             "IndexOutOfBoundsException: size = $itemCount, position = $position"
         }
-        list[position] = item
+        data[position] = item
         notifyItemChanged(position)
     }
 
-    fun getList(): MutableList<Any> {
-        return list
+    fun getData(): MutableList<Any> {
+        return data
     }
 
     inline operator fun <reified T> get(position: Int): T? {
         require(position in 0 until itemCount) {
             "IndexOutOfBoundsException: size = $itemCount, position = $position"
         }
-        val item = getList()[position]
+        val item = getData()[position]
         return if (item is T) item else null
     }
 
-    inline fun <reified T> getData(): List<T> {
+    inline fun <reified T> getAll(): List<T> {
         val list = mutableListOf<T>()
-        getList().forEach {
+        getData().forEach {
             if (it is T) {
                 list.add(it)
             }
@@ -111,7 +126,7 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
     fun notifyRemoved(position: Int) {
         notifyItemRemoved(position)
         compatibilityDataSizeChanged(0)
-        notifyItemRangeChanged(position, list.size - position)
+        notifyItemRangeChanged(position, data.size - position)
     }
 
     fun notifyRangeInserted(size: Int, position: Int) {
@@ -126,7 +141,7 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
 
 
     private fun compatibilityDataSizeChanged(size: Int) {
-        val dataSize = list.size
+        val dataSize = data.size
         if (dataSize == size) {
             notifyDataSetChanged()
         }
