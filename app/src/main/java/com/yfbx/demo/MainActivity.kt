@@ -2,9 +2,11 @@ package com.yfbx.demo
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableString
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
 import com.yfbx.adapter.bind
+import com.yfbx.adapter.combine
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_menu.view.*
 import kotlinx.android.synthetic.main.item_menu_test.view.*
@@ -23,7 +25,7 @@ class MainActivity : AppCompatActivity() {
 
         //多布局
         recycleView.bind {
-            bind(R.layout.item_menu_test, "Group-1") { helper, item ->
+            bind<CharSequence>(R.layout.item_menu_test, "Group-1") { helper, item ->
                 val textView = helper.itemView.textView
                 textView.setBackgroundResource(R.color.background)
                 textView.setTextColor(Color.BLACK)
@@ -42,6 +44,11 @@ class MainActivity : AppCompatActivity() {
             }
             add("Group-3")
             addAll(data)
+
+            combine<CharSequence, String>()
+            combine<CharSequence, SpannableString>()
+
+            add(SpannableString("test"))
         }
     }
 }

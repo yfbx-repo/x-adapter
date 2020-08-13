@@ -42,6 +42,12 @@ inline fun <reified T> XAdapter.bind(layoutId: Int, noinline binder: (helper: Ba
     addType(className, layoutId, binder)
 }
 
+inline fun <reified T, reified R> XAdapter.combine() {
+    val className = T::class.java.name
+    val binder = getBinder(className)
+    addType(R::class.java.name, binder)
+}
+
 
 class XAdapter : BaseAdapter<Any>() {
 
@@ -62,6 +68,14 @@ class XAdapter : BaseAdapter<Any>() {
         val viewType = nextType.getAndIncrement()
         types[className] = viewType
         binders.append(viewType, binder)
+    }
+
+    fun getBinder(className: String): BaseTypeBinder {
+        val type = types[className]
+        require(type != null) { "This type #$className of view  was not found!" }
+        val binder = binders[type]
+        require(binder != null) { "This type #$className of view  was not found!" }
+        return binder
     }
 
     override fun getItemViewType(position: Int): Int {
