@@ -1,15 +1,20 @@
 package com.yfbx.adapter
 
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.RecyclerView
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Author: Edward
  * Date: 2020-07-28
  * Description:
  */
-class XAdapter : RecyclerView.Adapter<ViewHelper>() {
+class XAdapter : BaseAdapter<Any, ViewHelper>() {
+
+    //viewType
+    private val nextType = AtomicInteger()
 
     //<viewType,binder>
     private val binders = SparseArrayCompat<Binder<*>>()
@@ -17,19 +22,15 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
     //<className,viewType>
     private val types = hashMapOf<String, Int>()
 
-    private val data = mutableListOf<Any>()
 
-    fun addBinder(viewType: Int, className: String, binder: Binder<*>) {
+    fun addType(className: String, binder: Binder<*>) {
+        val viewType = nextType.getAndIncrement()
         types[className] = viewType
         binders.append(viewType, binder)
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
-
     override fun getItemViewType(position: Int): Int {
-        val item = data[position]
+        val item = get<Any>(position)!!
         val className = item::class.java.name
         val type = types[className]
         require(type != null) { "This type #$className of view  was not found!" }
@@ -42,109 +43,46 @@ class XAdapter : RecyclerView.Adapter<ViewHelper>() {
         return binder.createViewHelper(parent)
     }
 
-    override fun onBindViewHolder(holder: ViewHelper, position: Int) {
-        onBindViewHolder(holder, position, mutableListOf())
+    override fun onBind(holder: ViewHelper, item: Any) {
+        val type = getItemViewType(holder.adapterPosition)
+        val binder = binders[type]
+        binder?.onBind(holder, item)
     }
+}
 
-    override fun onBindViewHolder(holder: ViewHelper, position: Int, payloads: MutableList<Any>) {
-        holder.onBind(data[holder.adapterPosition])
-    }
 
-    fun setNewData(items: List<Any>) {
-        data.clear()
-        data.addAll(items)
-        notifyDataSetChanged()
-    }
+/**
+ * 扩展 语法高亮
+ */
+fun RecyclerView.bind(builder: XAdapter.() -> Unit): XAdapter {
+    val xAdapter = adapter(builder)
+    adapter = xAdapter
+    return xAdapter
+}
 
-    fun add(item: Any, position: Int = itemCount) {
-        require(position in 0..itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
+fun adapter(builder: XAdapter.() -> Unit): XAdapter {
+    return XAdapter().apply(builder)
+}
+
+
+inline fun <reified T> XAdapter.bind(layoutId: Int, item: T, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
+    bind(layoutId, binder)
+    add(item as Any)
+}
+
+
+inline fun <reified T> XAdapter.bind(layoutId: Int, items: List<T>, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
+    bind(layoutId, binder)
+    @Suppress("UNCHECKED_CAST")
+    addAll(items as List<Any>)
+}
+
+inline fun <reified T> XAdapter.bind(layoutId: Int, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
+    val className = T::class.java.name
+    addType(className, object : Binder<T>(binder) {
+        override fun createViewHelper(parent: ViewGroup): ViewHelper {
+            return ViewHelper(LayoutInflater.from(parent.context).inflate(layoutId, parent, false))
         }
-        require(item !is List<*>) {
-            "IllegalArgumentException:Method #add(item) is only used to add single item.try: #addAll(items)"
-        }
-        data.add(position, item)
-        notifyInserted(position)
-    }
-
-    fun addAll(items: List<Any>, position: Int = itemCount) {
-        require(position in 0..itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
-        }
-        data.addAll(position, items)
-        notifyRangeInserted(items.size, position)
-    }
-
-    fun remove(position: Int) {
-        require(position in 0 until itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
-        }
-        data.removeAt(position)
-        notifyRemoved(position)
-    }
-
-    inline fun <reified T> removeAll() {
-        getData().removeAll { it is T }
-        notifyDataSetChanged()
-    }
-
-    fun clear() {
-        data.clear()
-        notifyDataSetChanged()
-    }
-
-    fun update(position: Int, item: Any) {
-        require(position in 0 until itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
-        }
-        data[position] = item
-        notifyItemChanged(position)
-    }
-
-    fun getData(): MutableList<Any> {
-        return data
-    }
-
-    inline operator fun <reified T> get(position: Int): T? {
-        require(position in 0 until itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
-        }
-        val item = getData()[position]
-        return if (item is T) item else null
-    }
-
-    inline fun <reified T> getAll(): List<T> {
-        val list = mutableListOf<T>()
-        getData().forEach {
-            if (it is T) {
-                list.add(it)
-            }
-        }
-        return list
-    }
-
-    fun notifyRemoved(position: Int) {
-        notifyItemRemoved(position)
-        compatibilityDataSizeChanged(0)
-        notifyItemRangeChanged(position, data.size - position)
-    }
-
-    fun notifyRangeInserted(size: Int, position: Int) {
-        notifyItemRangeInserted(position, size)
-        compatibilityDataSizeChanged(size)
-    }
-
-    fun notifyInserted(position: Int) {
-        notifyItemInserted(position)
-        compatibilityDataSizeChanged(1)
-    }
-
-
-    private fun compatibilityDataSizeChanged(size: Int) {
-        val dataSize = data.size
-        if (dataSize == size) {
-            notifyDataSetChanged()
-        }
-    }
+    })
 }
 

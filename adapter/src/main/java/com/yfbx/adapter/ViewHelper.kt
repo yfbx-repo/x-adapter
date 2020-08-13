@@ -9,7 +9,4 @@ import kotlinx.android.extensions.LayoutContainer
  * Date: 2020-08-03
  * Description:
  */
-abstract class ViewHelper(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-
-    abstract fun onBind(item: Any)
-}
+class ViewHelper(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer
