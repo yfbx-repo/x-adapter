@@ -1,12 +1,12 @@
 # x-adapter
 
 
-[![](https://img.shields.io/badge/release-1.1.0-blue.svg)](https://github.com/yfbx-repo/x-adapter/releases)
+[![](https://img.shields.io/badge/release-1.1.1-blue.svg)](https://github.com/yfbx-repo/x-adapter/releases)
 
 ### Dependency:
 ```
 dependencies {
-    implementation 'com.github.yfbx-repo:x-adapter:1.1.0'
+    implementation 'com.github.yfbx-repo:x-adapter:1.1.1'
 }
 ```
 
@@ -21,23 +21,29 @@ val adapter = recycleView.bind(R.layout.item_menu, data) { helper, item ->
 
 //多布局
 recycleView.bind {
-    bind(R.layout.item_menu_test, "Group-1") { helper, item ->
-        helper.itemView.textView.setBackgroundResource(R.color.background)
-        helper.itemView.textView.setTextColor(Color.BLACK)
-        helper.itemView.textView.gravity = Gravity.START
-        helper.itemView.textView.text = item
-    }
-    bind<User>(R.layout.item_menu, data) { helper, item ->
-        helper.itemView.btn.text = item.name
-        helper.itemView.btn.setOnClickListener {
-            //TODO: click event
-        }
-    }
-    add("Group-2")
-    bind<Int>(R.layout.item_menu_test, listOf(1, 2, 3)) { helper, item ->
-        helper.itemView.textView.text = "test$item"
-    }
-    add("Group-3")
-    addAl
+     bind<CharSequence>(R.layout.item_menu_test, "Group-1") { helper, item ->
+         val textView = helper.itemView.textView
+         textView.setBackgroundResource(R.color.background)
+         textView.setTextColor(Color.BLACK)
+         textView.gravity = Gravity.START
+         textView.text = item
+     }
+     bind<User>(R.layout.item_menu, data) { helper, item ->
+         helper.itemView.btn.text = item.name
+         helper.itemView.btn.setOnClickListener {
+             //
+         }
+     }
+     add("Group-2")
+     bind<Int>(R.layout.item_menu_test, listOf(1, 2, 3)) { helper, item ->
+         helper.itemView.textView.text = "test$item"
+     }
+     add("Group-3")
+     addAll(data)
+
+     combine<CharSequence, String>()
+     combine<CharSequence, SpannableString>()
+
+     add(SpannableString("test"))
 }
 ```
