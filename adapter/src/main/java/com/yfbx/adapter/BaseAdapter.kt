@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
  * Date: 2020-08-12
  * Description:
  */
-abstract class BaseAdapter<T, HOLDER : RecyclerView.ViewHolder> : RecyclerView.Adapter<HOLDER>() {
+abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder>() {
 
     private val data = mutableListOf<T>()
 
@@ -16,15 +16,15 @@ abstract class BaseAdapter<T, HOLDER : RecyclerView.ViewHolder> : RecyclerView.A
         return data.size
     }
 
-    override fun onBindViewHolder(holder: HOLDER, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         onBindViewHolder(holder, position, mutableListOf())
     }
 
-    override fun onBindViewHolder(holder: HOLDER, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
         onBind(holder, data[holder.adapterPosition])
     }
 
-    abstract fun onBind(holder: HOLDER, item: T)
+    abstract fun onBind(holder: BaseViewHolder, item: T)
 
     fun setNewData(items: List<T>) {
         data.clear()

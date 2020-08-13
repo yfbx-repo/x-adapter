@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * Date: 2020-07-28
  * Description:
  */
-class XAdapter : BaseAdapter<Any, ViewHelper>() {
+class XAdapter : BaseAdapter<Any>() {
 
     //viewType
     private val nextType = AtomicInteger()
@@ -37,13 +37,13 @@ class XAdapter : BaseAdapter<Any, ViewHelper>() {
         return type
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHelper {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val binder = binders[viewType]
         require(binder != null) { "This type #$viewType of view  was not found!" }
         return binder.createViewHelper(parent)
     }
 
-    override fun onBind(holder: ViewHelper, item: Any) {
+    override fun onBind(holder: BaseViewHolder, item: Any) {
         val type = getItemViewType(holder.adapterPosition)
         val binder = binders[type]
         binder?.onBind(holder, item)
@@ -65,23 +65,23 @@ fun adapter(builder: XAdapter.() -> Unit): XAdapter {
 }
 
 
-inline fun <reified T> XAdapter.bind(layoutId: Int, item: T, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
+inline fun <reified T> XAdapter.bind(layoutId: Int, item: T, noinline binder: (helper: BaseViewHolder, item: T) -> Unit) {
     bind(layoutId, binder)
     add(item as Any)
 }
 
 
-inline fun <reified T> XAdapter.bind(layoutId: Int, items: List<T>, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
+inline fun <reified T> XAdapter.bind(layoutId: Int, items: List<T>, noinline binder: (helper: BaseViewHolder, item: T) -> Unit) {
     bind(layoutId, binder)
     @Suppress("UNCHECKED_CAST")
     addAll(items as List<Any>)
 }
 
-inline fun <reified T> XAdapter.bind(layoutId: Int, noinline binder: (helper: ViewHelper, item: T) -> Unit) {
+inline fun <reified T> XAdapter.bind(layoutId: Int, noinline binder: (helper: BaseViewHolder, item: T) -> Unit) {
     val className = T::class.java.name
     addType(className, object : Binder<T>(binder) {
-        override fun createViewHelper(parent: ViewGroup): ViewHelper {
-            return ViewHelper(LayoutInflater.from(parent.context).inflate(layoutId, parent, false))
+        override fun createViewHelper(parent: ViewGroup): BaseViewHolder {
+            return BaseViewHolder(LayoutInflater.from(parent.context).inflate(layoutId, parent, false))
         }
     })
 }
