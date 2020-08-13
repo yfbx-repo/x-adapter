@@ -24,10 +24,11 @@ class MainActivity : AppCompatActivity() {
         //多布局
         recycleView.bind {
             bind(R.layout.item_menu_test, "Group-1") { helper, item ->
-                helper.itemView.textView.setBackgroundResource(R.color.background)
-                helper.itemView.textView.setTextColor(Color.BLACK)
-                helper.itemView.textView.gravity = Gravity.START
-                helper.itemView.textView.text = item
+                val textView = helper.itemView.textView
+                textView.setBackgroundResource(R.color.background)
+                textView.setTextColor(Color.BLACK)
+                textView.gravity = Gravity.START
+                textView.text = item
             }
             bind<User>(R.layout.item_menu, data) { helper, item ->
                 helper.itemView.btn.text = item.name
