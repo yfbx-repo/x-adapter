@@ -1,5 +1,6 @@
 package com.yfbx.adapter
 
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -8,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
  * Description:
  */
 abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder>() {
-
+    val TAG = "XAdapter"
     private val data = mutableListOf<T>()
 
 
@@ -20,7 +21,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder>() {
         onBindViewHolder(holder, position, mutableListOf())
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(
+        holder: BaseViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
         onBind(holder, data[holder.adapterPosition])
     }
 
@@ -33,30 +38,33 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     fun add(item: T, position: Int = itemCount) {
-        require(position in 0..itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
-        }
         require(item !is List<*>) {
             "IllegalArgumentException:Method #add(item) is only used to add single item.try: #addAll(items)"
         }
-        data.add(position, item)
-        notifyInserted(position)
+        if (position in 0..itemCount) {
+            data.add(position, item)
+            notifyInserted(position)
+        } else {
+            Log.e(TAG, "IndexOutOfBoundsException: size = $itemCount, position = $position")
+        }
     }
 
     fun addAll(items: List<T>, position: Int = itemCount) {
-        require(position in 0..itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
+        if (position in 0..itemCount) {
+            data.addAll(position, items)
+            notifyRangeInserted(items.size, position)
+        } else {
+            Log.e(TAG, "IndexOutOfBoundsException: size = $itemCount, position = $position")
         }
-        data.addAll(position, items)
-        notifyRangeInserted(items.size, position)
     }
 
     fun remove(position: Int) {
-        require(position in 0 until itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
+        if (position in 0..itemCount) {
+            data.removeAt(position)
+            notifyRemoved(position)
+        } else {
+            Log.e(TAG, "IndexOutOfBoundsException: size = $itemCount, position = $position")
         }
-        data.removeAt(position)
-        notifyRemoved(position)
     }
 
     inline fun <reified T> removeAll() {
@@ -70,11 +78,12 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     fun update(position: Int, item: T) {
-        require(position in 0 until itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
+        if (position in 0..itemCount) {
+            data[position] = item
+            notifyItemChanged(position)
+        } else {
+            Log.e(TAG, "IndexOutOfBoundsException: size = $itemCount, position = $position")
         }
-        data[position] = item
-        notifyItemChanged(position)
     }
 
     fun getData(): MutableList<T> {
@@ -82,11 +91,14 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     inline operator fun <reified T> get(position: Int): T? {
-        require(position in 0 until itemCount) {
-            "IndexOutOfBoundsException: size = $itemCount, position = $position"
+        if (position in 0..itemCount) {
+            val item = getData()[position]
+            return if (item is T) item else null
+        } else {
+            Log.e(TAG, "IndexOutOfBoundsException: size = $itemCount, position = $position")
+            return null
         }
-        val item = getData()[position]
-        return if (item is T) item else null
+
     }
 
     inline fun <reified T> getAll(): List<T> {
