@@ -1,12 +1,12 @@
 # x-adapter
 
 
-[![](https://img.shields.io/badge/release-1.1.3-blue.svg)](https://github.com/yfbx-repo/x-adapter/releases)
+[![](https://img.shields.io/badge/release-1.1.4-blue.svg)](https://github.com/yfbx-repo/x-adapter/releases)
 
 ### Dependency:
 ```
 dependencies {
-    implementation 'com.github.yfbx-repo:x-adapter:1.1.3'
+    implementation 'com.github.yfbx-repo:x-adapter:1.1.4'
 }
 ```
 
