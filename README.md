@@ -1,6 +1,6 @@
 # x-adapter
 
-
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![](https://img.shields.io/badge/release-1.1.4-blue.svg)](https://github.com/yfbx-repo/x-adapter/releases)
 
 ### Dependency:
